@@ -10,33 +10,33 @@ class AIChatBotScreen extends StatefulWidget {
 }
 
 class _AIChatBotScreenState extends State<AIChatBotScreen> {
-  final List<Map<String, String>> _messages =
-      []; // Stores messages (user and bot)
+  List<Map<String, dynamic>> _messages = []; // Stores messages (user and bot)
   final TextEditingController _controller = TextEditingController();
 
   // Simulate chatbot response using the API
   void _sendMessage(String userMessage) async {
     if (userMessage.trim().isEmpty) return;
 
-    setState(() {
-      _messages.add({'sender': 'user', 'message': userMessage});
-    });
-
     // Call the chatbot API with user input
-    await chatbotApi(userMessage, context);
+    _messages = await chatbotApi(userMessage, context);
 
     // Optionally, you could handle the response here if needed.
     // For now, you might want to handle bot responses from the API.
     // For simplicity, we'll simulate a response after sending the message.
-    Future.delayed(const Duration(seconds: 1), () {
-      String botResponse = "I'm processing your request..."; // Placeholder
+    // Future.delayed(const Duration(seconds: 1), () {
+    //   String botResponse = "I'm processing your request..."; // Placeholder
+    setState(() {});
 
-      setState(() {
-        _messages.add({'sender': 'bot', 'message': botResponse});
-      });
-    });
+    // });
 
     _controller.clear();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _sendMessage('Hello');
   }
 
   @override
@@ -51,40 +51,92 @@ class _AIChatBotScreenState extends State<AIChatBotScreen> {
           // Chat Messages List
           Expanded(
             child: ListView.builder(
+              reverse: true,
               padding: const EdgeInsets.all(16.0),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final message = _messages[index];
-                final isUser = message['sender'] == 'user';
+                // final isUser = message['sender'] == 'user';
 
-                return Align(
-                  alignment:
-                      isUser ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8.0),
-                    padding: const EdgeInsets.all(12.0),
-                    decoration: BoxDecoration(
-                      color: isUser ? Colors.blue[100] : Colors.grey[200],
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(12.0),
-                        topRight: const Radius.circular(12.0),
-                        bottomLeft: isUser
-                            ? const Radius.circular(12.0)
-                            : const Radius.circular(0.0),
-                        bottomRight: isUser
-                            ? const Radius.circular(0.0)
-                            : const Radius.circular(12.0),
+                return Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 8.0),
+                        padding: const EdgeInsets.all(12.0),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[100],
+                          borderRadius: BorderRadius.only(
+                            topLeft: const Radius.circular(12.0),
+                            topRight: const Radius.circular(12.0),
+                            bottomLeft: const Radius.circular(12.0),
+                            bottomRight: const Radius.circular(0.0),
+                          ),
+                        ),
+                        child: Text(
+                          message['user_query']!,
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
                     ),
-                    child: Text(
-                      message['message']!,
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: isUser ? Colors.black : Colors.black87,
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 8.0),
+                        padding: const EdgeInsets.all(12.0),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.only(
+                            topLeft: const Radius.circular(12.0),
+                            topRight: const Radius.circular(12.0),
+                            bottomLeft: const Radius.circular(0.0),
+                            bottomRight: const Radius.circular(12.0),
+                          ),
+                        ),
+                        child: Text(
+                          message['chatbot_response']!,
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.black87,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                    )
+                  ],
                 );
+
+                // Align(
+                //   alignment:
+                //       isUser ? Alignment.centerRight : Alignment.centerLeft,
+                //   child: Container(
+                //     margin: const EdgeInsets.symmetric(vertical: 8.0),
+                //     padding: const EdgeInsets.all(12.0),
+                //     decoration: BoxDecoration(
+                //       color: isUser ? Colors.blue[100] : Colors.grey[200],
+                //       borderRadius: BorderRadius.only(
+                //         topLeft: const Radius.circular(12.0),
+                //         topRight: const Radius.circular(12.0),
+                //         bottomLeft: isUser
+                //             ? const Radius.circular(12.0)
+                //             : const Radius.circular(0.0),
+                //         bottomRight: isUser
+                //             ? const Radius.circular(0.0)
+                //             : const Radius.circular(12.0),
+                //       ),
+                //     ),
+                //     child: Text(
+                //       message['message']!,
+                //       style: TextStyle(
+                //         fontSize: 16.0,
+                //         color: isUser ? Colors.black : Colors.black87,
+                //       ),
+                //     ),
+                //   ),
+                // );
               },
             ),
           ),
@@ -125,21 +177,25 @@ class _AIChatBotScreenState extends State<AIChatBotScreen> {
   }
 }
 
-Future<void> chatbotApi(String data, BuildContext context) async {
+Future<List<Map<String, dynamic>>> chatbotApi(
+    String data, BuildContext context) async {
   try {
     final response =
         await Dio().post('$baseUrl/chatbotapi', data: {'query': data});
-    print(response.data);
+    print("EEEEE$response");
     int? res = response.statusCode;
     print(res);
 
     if (res == 201) {
       print('Chatbot response successful');
+      return List<Map<String, dynamic>>.from(response.data['chat_history']);
       // Here, you can handle the response and update the chatbot UI if necessary.
     } else {
       print('Failed to get response');
+      return [];
     }
   } catch (e) {
     print(e);
+    return [];
   }
 }

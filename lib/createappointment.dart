@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:predictivehealthcare/api/createappointmentapi.dart';
 import 'package:predictivehealthcare/doctordetailscreen.dart';
 
 class CreateAppointmentScreen extends StatefulWidget {
@@ -22,7 +23,7 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
 
-  void _submitAppointment() {
+  void _submitAppointment()async {
     if (_nameController.text.isEmpty ||
         _ageController.text.isEmpty ||
         _heightController.text.isEmpty ||
@@ -37,17 +38,29 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
       return;
     }
 
-    // Handle appointment submission logic here
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Appointment successfully created')),
-    );
-    Navigator.pop(context);
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => DoctorDetailsScreen(
-                  doctor: {},
-                )));
+    await createAppointment({
+      'patient_name': _nameController.text,
+      'patient_age': _ageController.text,
+      'patient_height': _heightController.text,
+      'patient_weight': _weightController.text,
+      'patient_addr': _addressController.text,
+      'APPOINTMENTDATE': _selectedDate.toString(),
+      'APPOINTMENTTIME': _selectedTime.toString(),
+      'visitReason': _reasonController.text,
+
+    });
+
+    // // Handle appointment submission logic here
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(content: Text('Appointment successfully created')),
+    // );
+    // Navigator.pop(context);
+    // Navigator.push(
+    //     context,
+    //     MaterialPageRoute(
+    //         builder: (context) => DoctorDetailsScreen(
+    //               doctor: {},
+    //             )));
   }
 
   @override
