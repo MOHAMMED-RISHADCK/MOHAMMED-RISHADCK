@@ -1,9 +1,45 @@
 import 'package:flutter/material.dart';
+import '/api/forgotpasswordapi.dart';  // Import the API logic
 
-class ForgotPasswordScreen extends StatelessWidget {
+class ForgotPasswordScreen extends StatefulWidget {
+  @override
+  _ForgotPasswordScreenState createState() => _ForgotPasswordScreenState();
+}
+
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController emailController = TextEditingController();
+  bool _isLoading = false;
 
-  ForgotPasswordScreen({super.key});
+  // Function to call resetPassword from the API
+  void _onForgotPassword() {
+    String email = emailController.text.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter your email address')),
+      );
+    } else {
+      setState(() {
+        _isLoading = true;  // Show loading indicator
+      });
+
+      // Call the resetPassword function from the API file
+      resetPassword(email).then((_) {
+        setState(() {
+          _isLoading = false;  // Stop loading
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Password reset link sent to $email')),
+        );
+      }).catchError((error) {
+        setState(() {
+          _isLoading = false;  // Stop loading
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $error')),
+        );
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,23 +70,12 @@ class ForgotPasswordScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: () {
-                // Logic to handle password reset
-                String email = emailController.text.trim();
-                if (email.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please enter your email address')),
-                  );
-                } else {
-                  // Call password reset API or functionality
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Password reset link sent to $email')),
-                  );
-                }
-              },
-              child: Text('Send Reset Link'),
-            ),
+            _isLoading
+                ? Center(child: CircularProgressIndicator())
+                : ElevatedButton(
+                    onPressed: _onForgotPassword,  // Trigger the forgot password logic
+                    child: Text('Send Reset Link'),
+                  ),
             SizedBox(height: 20.0),
             TextButton(
               onPressed: () {

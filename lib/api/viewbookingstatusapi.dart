@@ -7,7 +7,9 @@ final Dio _dio = Dio();
 Future<List<Map<String, dynamic>>> getBookingInfo(userId) async {
   try {
     final response = await _dio.get(
-      '$baseUrl/bookinginfo',
+      '$baseUrl/bookinginfo',data: {
+        'USERID': lid
+      }
     );
 
     if (response.statusCode == 200) {

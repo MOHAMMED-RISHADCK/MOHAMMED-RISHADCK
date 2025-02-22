@@ -19,7 +19,7 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Dashboard',
+          'Predictive Healthcare',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF0288D1), // Medical-themed blue

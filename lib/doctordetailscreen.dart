@@ -4,12 +4,13 @@ import 'package:predictivehealthcare/reviewandratescreen.dart';
 
 class DoctorDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> doctor;
+  // final List<Map<String,dynamic>> slottt;
 
-  const DoctorDetailsScreen({super.key, required this.doctor});
+  const DoctorDetailsScreen(
+      {super.key, required this.doctor,});
 
   @override
   Widget build(BuildContext context) {
-    
     // Mock reviews data
     final List<Map<String, String>> reviews = [
       {'review': 'Excellent doctor, very professional!', 'rating': '5.0'},
@@ -142,12 +143,15 @@ class DoctorDetailsScreen extends StatelessWidget {
                   lastDate: DateTime(2101),
                 );
                 if (selectedDate != null) {
+
+
                   // Navigate to the Create Appointment screen with the selected date
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => CreateAppointmentScreen(
                         selectedDate: selectedDate,
+                        doctorid: doctor["id"],
                       ),
                     ),
                   );

@@ -128,13 +128,16 @@ class _AvailableDoctorsScreenState extends State<AvailableDoctorsScreen> {
                               ),
                             ],
                           ),
-                          onTap: () async{
-                            List<Map<String,dynamic>>slotdata=await    getSlots();
+                          onTap: () async {
+                            List<Map<String, dynamic>> slotdata =
+                                await getSlots();
+                            // print("rrrrr$slotdata");
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    DoctorDetailsScreen(doctor: doctor,),
+                                builder: (context) => DoctorDetailsScreen(
+                                    doctor: doctor, )
+                                    // slottt: slotdata),
                               ),
                             );
                           },

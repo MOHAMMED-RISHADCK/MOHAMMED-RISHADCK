@@ -7,7 +7,7 @@ Future<List<Map<String, dynamic>>> getSlots() async {
     final response =
         await _dio.get('$baseUrl/slotview'); // Adjust the endpoint as needed
     if (response.statusCode == 200) {
-      print(response.data);
+      print("eeeyyyyee$response.data");
       return List<Map<String, dynamic>>.from(
           response.data); // Assuming the API returns a JSON array of doctors
     } else {
