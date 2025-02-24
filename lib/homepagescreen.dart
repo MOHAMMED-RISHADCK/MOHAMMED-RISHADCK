@@ -7,9 +7,9 @@ import 'package:predictivehealthcare/api/viewprescriptionapi.dart';
 import 'package:predictivehealthcare/bookingstatusscreen.dart';
 import 'package:predictivehealthcare/chatbotscreen.dart';
 import 'package:predictivehealthcare/postsscreen.dart';
+import 'package:predictivehealthcare/profilescreen.dart';
 import 'package:predictivehealthcare/viewdoctorscreen.dart';
 import 'package:predictivehealthcare/viewprescriptionscreen.dart';
-
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -24,14 +24,69 @@ class DashboardScreen extends StatelessWidget {
         ),
         backgroundColor: const Color(0xFF0288D1), // Medical-themed blue
         elevation: 0,
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                // Open the drawer when the menu button is tapped
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            // Profile link at the top
+            ListTile(
+              leading: const Icon(Icons.account_circle),
+              title: const Text('Profile'),
+              onTap: () {
+                // Handle profile tap (you can navigate to a profile screen here)
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfileScreen()),
+                );
+              },
+            ),
+            const Divider(),
+            // Other menu items can go here
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap: () {
+                // Handle settings tap
+                // For
+              },
+            ),
+            const Divider(),
+            // Logout button at the bottom
+            ListTile(
+              leading: const Icon(Icons.exit_to_app),
+              title: const Text('Logout'),
+              onTap: () {
+                // Handle logout action
+                // For now, just show a snackbar (you can add real logout logic here)
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Logged out successfully')),
+                );
+                // You can also clear user data, navigate to login screen, etc.
+                // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+              },
+            ),
+          ],
+        ),
       ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
               Color(0xFFE3F2FD),
-              Color(0xFFB3E5FC)
-            ], // Light blue gradient
+              Color(0xFFB3E5FC),
+            ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -45,7 +100,7 @@ class DashboardScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24.0,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF01579B), // Darker blue for emphasis
+                  color: Color(0xFF01579B),
                 ),
               ),
               const SizedBox(height: 16.0),
@@ -58,61 +113,59 @@ class DashboardScreen extends StatelessWidget {
                     _buildDashboardItem(
                       icon: Icons.person_search,
                       label: 'Doctors & Appointments',
-                      color: const Color(0xFF4CAF50), // Green for health
-                      onTap: ()async {
-             List<Map<String, dynamic>>doctors=await  getDoctorsList();
+                      color: const Color(0xFF4CAF50),
+                      onTap: () async {
+                        List<Map<String, dynamic>> doctors = await getDoctorsList();
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    AvailableDoctorsScreen(doctors: doctors,)));
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AvailableDoctorsScreen(doctors: doctors),
+                          ),
+                        );
                       },
                     ),
                     _buildDashboardItem(
-  icon: Icons.calendar_today,
-  label: 'Bookings & Notifications',
-  color: const Color(0xFF0288D1), // Blue for trust
-  onTap: () async {
-    // Fetch booking info and notifications
-    List<Map<String, dynamic>> bookingInfo = await getBookingInfo(lid);
-    
-
-    // Navigate to BookingStatusScreen with the fetched data
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => BookingStatusScreen(
-          bookingInfo: bookingInfo,
-          // notificationInformation: notificationInfo,
-        ),
-      ),
-    );
-  },
-),
-
-
+                      icon: Icons.calendar_today,
+                      label: 'Bookings & Notifications',
+                      color: const Color(0xFF0288D1),
+                      onTap: () async {
+                        List<Map<String, dynamic>> bookingInfo = await getBookingInfo(lid);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BookingStatusScreen(
+                              bookingInfo: bookingInfo,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                     _buildDashboardItem(
                       icon: Icons.description,
                       label: 'Prescriptions',
-                      color: const Color(0xFF00796B), // Teal for freshness
-                      onTap: ()async {
-                  List<Map<String,dynamic>>prescriptiondata=await      getPrescriptions();
+                      color: const Color(0xFF00796B),
+                      onTap: () async {
+                        List<Map<String, dynamic>> prescriptionData = await getPrescriptions();
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => PrescriptionScreen(prescriptions: prescriptiondata,)));
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PrescriptionScreen(prescriptions: prescriptionData),
+                          ),
+                        );
                       },
                     ),
                     _buildDashboardItem(
                       icon: Icons.post_add,
                       label: 'Health Posts',
-                      color: const Color(0xFFFFA000), // Orange for engagement
-                      onTap: ()async {
-                 List<Map<String,dynamic>>postdata=await       getPosts();
+                      color: const Color(0xFFFFA000),
+                      onTap: () async {
+                        List<Map<String, dynamic>> postData = await getPosts();
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MedicalPostsScreen(postdata: postdata,)));
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MedicalPostsScreen(postData: postData),
+                          ),
+                        );
                       },
                     ),
                   ],
@@ -127,7 +180,7 @@ class DashboardScreen extends StatelessWidget {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => AIChatBotScreen()));
         },
-        backgroundColor: const Color(0xFF4CAF50), // Consistent green
+        backgroundColor: const Color(0xFF4CAF50),
         icon: const Icon(Icons.healing, color: Colors.white),
         label: const Text(
           'Disease Prediction',
@@ -181,3 +234,5 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 }
+
+

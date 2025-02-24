@@ -31,6 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _rememberMe = false;
+  bool _obscureText = true; // Boolean to control password visibility
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 16),
                 TextField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: _obscureText, // Controlled by _obscureText
                   decoration: InputDecoration(
                     labelText: "Password",
                     prefixIcon:
@@ -96,6 +97,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderSide: const BorderSide(color: Color(0xFF0073E6)),
                     ),
                     labelStyle: const TextStyle(color: Color(0xFF003366)),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureText
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: Color(0xFF0073E6),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText; // Toggle password visibility
+                        });
+                      },
+                    ),
                   ),
                   style: const TextStyle(color: Color(0xFF003366)),
                 ),
@@ -114,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                           checkColor: Colors.white,
                           fillColor:
-                              WidgetStateProperty.all(Color(0xFF0073E6)),
+                              MaterialStateProperty.all(Color(0xFF0073E6)),
                         ),
                         const Text(
                           "Remember me",
@@ -145,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     String password = _passwordController.text;
 
                     if (username.isNotEmpty && password.isNotEmpty) {
-                      loginapi(username,password,context);
+                      loginapi(username, password, context);
                       // Navigator.push(
                       //     context,
                       //     MaterialPageRoute(

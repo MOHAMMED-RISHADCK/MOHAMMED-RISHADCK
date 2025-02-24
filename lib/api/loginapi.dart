@@ -7,7 +7,7 @@ int? lid;
 String? userType;
 String? loginstatus;
 
-const String baseUrl = 'http://192.168.1.106:5000';
+const String baseUrl = 'http://192.168.69.14:5000';
 
 Future<void> loginapi(username, password, context) async {
   try {

@@ -3,7 +3,7 @@ import 'package:predictivehealthcare/api/loginapi.dart';
 
 class MedicalPostsScreen extends StatelessWidget {
   // Mock posts data
-  final postdata;
+  final postData;
   // final List<Map<String, String>> _posts = [
   //   {
   //     'doctor': 'Dr. Alice',
@@ -28,7 +28,7 @@ class MedicalPostsScreen extends StatelessWidget {
   //   },
   // ];
 
-  const MedicalPostsScreen({super.key, this.postdata});
+  const MedicalPostsScreen({super.key, this.postData});
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +37,12 @@ class MedicalPostsScreen extends StatelessWidget {
         title: const Text('Medical Posts'),
         backgroundColor: Colors.blueAccent,
       ),
-      body: postdata.isNotEmpty
+      body: postData.isNotEmpty
           ? ListView.builder(
               padding: const EdgeInsets.all(16.0),
-              itemCount: postdata.length,
+              itemCount: postData.length,
               itemBuilder: (context, index) {
-                final post = postdata[index];
+                final post = postData[index];
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 10.0),
                   shape: RoundedRectangleBorder(
