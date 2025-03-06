@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:predictivehealthcare/doctordetailscreen.dart';
+import 'package:predictivehealthcare/api/reviewapi.dart'; // Import API file
 
 class ReviewAndRatingScreen extends StatefulWidget {
   final Map<String, dynamic> doctor;
+  
+  final int doctorid;
+  
 
-  const ReviewAndRatingScreen({super.key, required this.doctor});
+  const ReviewAndRatingScreen({super.key, required this.doctor, required this.doctorid});
 
   @override
   _ReviewAndRatingScreenState createState() => _ReviewAndRatingScreenState();
@@ -14,6 +18,7 @@ class ReviewAndRatingScreen extends StatefulWidget {
 class _ReviewAndRatingScreenState extends State<ReviewAndRatingScreen> {
   double _rating = 0.0;
   final TextEditingController _reviewController = TextEditingController();
+  bool _isSubmitting = false; // Track submission state
 
   @override
   void dispose() {
@@ -21,11 +26,12 @@ class _ReviewAndRatingScreenState extends State<ReviewAndRatingScreen> {
     super.dispose();
   }
 
-  void _submitReview() {
+  Future<void> _submitReview() async {
     if (_rating == 0.0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please provide a rating.'),
+          backgroundColor: Colors.red,
         ),
       );
       return;
@@ -35,30 +41,65 @@ class _ReviewAndRatingScreenState extends State<ReviewAndRatingScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please write a review.'),
+          backgroundColor: Colors.red,
         ),
       );
       return;
     }
 
-    // Handle review submission logic
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Thank you for reviewing ${widget.doctor['name']}!'),
-      ),
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    // Call API to submit review
+    bool success = await ReviewApi.submitReview(
+      doctorid: widget.doctorid,
+      rating: _rating,
+      reviewcomment: _reviewController.text,
     );
 
-    // Clear the inputs
     setState(() {
-      _rating = 0.0;
-      _reviewController.clear();
+      _isSubmitting = false;
     });
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Thank you for reviewing Dr. ${widget.doctor['name']}!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Clear input fields
+      setState(() {
+        _rating = 0.0;
+        _reviewController.clear();
+      });
+
+      // Delay navigation so user sees success message
+      Future.delayed(const Duration(seconds: 2), () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DoctorDetailsScreen(doctor: widget.doctor),
+          ),
+        );
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to submit review. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Review ${widget.doctor['name']}'),
+        title: Text('Review Dr. ${widget.doctor['name']}'),
         backgroundColor: Colors.blueAccent,
       ),
       body: Padding(
@@ -67,7 +108,7 @@ class _ReviewAndRatingScreenState extends State<ReviewAndRatingScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Rate ${widget.doctor['name']}',
+              'Rate Dr. ${widget.doctor['name']}',
               style: const TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
@@ -115,24 +156,18 @@ class _ReviewAndRatingScreenState extends State<ReviewAndRatingScreen> {
             const Spacer(),
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  _submitReview;
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => DoctorDetailsScreen(
-                                doctor: {},
-                              )));
-                },
+                onPressed: _isSubmitting ? null : _submitReview,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blueAccent,
                   padding:
                       const EdgeInsets.symmetric(vertical: 14, horizontal: 40),
                 ),
-                child: const Text(
-                  'Submit Review',
-                  style: TextStyle(fontSize: 16.0),
-                ),
+                child: _isSubmitting
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        'Submit Review',
+                        style: TextStyle(fontSize: 16.0),
+                      ),
               ),
             ),
           ],

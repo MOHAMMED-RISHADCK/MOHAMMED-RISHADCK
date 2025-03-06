@@ -3,33 +3,15 @@ import 'package:predictivehealthcare/api/viewnotificationapi.dart';
 import 'package:predictivehealthcare/viewnotificationscreen.dart';
 
 class BookingStatusScreen extends StatelessWidget {
-  final bookingInfo;
-  // Mock appointment data
-  // final List<Map<String, String>> _appointments = [
-  //   {
-  //     'doctor': 'Dr. Alice',
-  //     'date': '2024-12-28',
-  //     'time': '10:00 AM',
-  //     'status': 'Confirmed',
-  //   },
-  //   {
-  //     'doctor': 'Dr. Bob',
-  //     'date': '2024-12-29',
-  //     'time': '03:00 PM',
-  //     'status': 'Pending',
-  //   },
-  //   {
-  //     'doctor': 'Dr. Carol',
-  //     'date': '2024-12-30',
-  //     'time': '02:00 PM',
-  //     'status': 'Cancelled',
-  //   },
-  // ];
+  final List<Map<String, dynamic>> bookingInfo;
+
 
   // Mock notification count
   final int _unreadNotifications = 5;
 
-   const BookingStatusScreen({super.key, this.bookingInfo});
+   const BookingStatusScreen({super.key, required this.bookingInfo});
+   
+
 
   @override
   Widget build(BuildContext context) {
@@ -55,8 +37,9 @@ class BookingStatusScreen extends StatelessWidget {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Date: ${appointment['APPOINTMENTDATE']??""}'),
-                        Text('Time: ${appointment['APPOINTMENTTIME']??""}'),
+                        
+                        Text('Date: ${appointment['APPOINTMENTDATE']?.toString()??"Not Availible"}'),
+                        Text('Time: ${appointment['APPOINTMENTTIME']??"Not Availible"}'),
                       ],
                     ),
                     trailing: Text(

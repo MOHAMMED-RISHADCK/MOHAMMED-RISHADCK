@@ -19,6 +19,8 @@ class PrescriptionScreen extends StatelessWidget {
               itemCount: prescriptions.length,
               itemBuilder: (context, index) {
                 final prescription = prescriptions[index];
+                final medicines = prescription['MEDICINES'] as List<dynamic>;
+
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 10.0),
                   shape: RoundedRectangleBorder(
@@ -41,7 +43,7 @@ class PrescriptionScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Prescribed by: ${prescription['DOCTOR DETAILS']['NAME']??""}',
+                                    'Prescribed by: ${prescription['DOCTOR DETAILS']['NAME'] ?? "Unknown"}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18.0,
@@ -49,7 +51,9 @@ class PrescriptionScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 4.0),
                                   Text(
-                                    'Date: ${prescriptions[0]['MEDICINES'][0]['isssuedate']??""}',
+                                    medicines.isNotEmpty
+                                        ? 'Date: ${medicines[0]['isssuedate'] ?? "N/A"}'
+                                        : 'No issuance date available',
                                     style: const TextStyle(
                                       fontSize: 14.0,
                                       color: Colors.grey,
@@ -70,49 +74,54 @@ class PrescriptionScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 8.0),
-                        ...prescription['MEDICINES']
-                            .map<Widget>((medication) {
-                          return Container(
-                            margin: const EdgeInsets.symmetric(vertical: 6.0),
-                            padding: const EdgeInsets.all(12.0),
-                            decoration: BoxDecoration(
-                              color: Colors.blue[50],
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(Icons.medication,
-                                    color: Colors.blueAccent, size: 24.0),
-                                const SizedBox(width: 12.0),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        medication['NAME'],
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16.0,
+                        medicines.isNotEmpty
+                            ? Column(
+                                children: medicines.map<Widget>((medication) {
+                                  return Container(
+                                    margin: const EdgeInsets.symmetric(vertical: 6.0),
+                                    padding: const EdgeInsets.all(12.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue[50],
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Icon(Icons.medication,
+                                            color: Colors.blueAccent, size: 24.0),
+                                        const SizedBox(width: 12.0),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                medication['NAME'] ?? "Unknown Medicine",
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16.0,
+                                                ),
+                                              ),
+                                              Text('Dosage: ${medication['DOSE'] ?? "N/A"}'),
+                                              Text('Disease: ${medication['DESCRIPTION'] ?? "N/A"}'),
+                                              Text(
+                                                medication['remark'] ?? "",
+                                                style: const TextStyle(
+                                                  fontSize: 13.0,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      Text('Dosage: ${medication['DOSE']}'),
-                                       Text('Disease: ${medication['DESCRIPTION']}'),
-                                      Text(
-                                        medication['remark'],
-                                        style: const TextStyle(
-                                          fontSize: 13.0,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              )
+                            : const Text(
+                                "No medicines prescribed",
+                                style: TextStyle(fontSize: 14.0, color: Colors.grey),
+                              ),
                       ],
                     ),
                   ),
