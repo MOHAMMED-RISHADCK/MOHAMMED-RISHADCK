@@ -109,34 +109,6 @@ class _AIChatBotScreenState extends State<AIChatBotScreen> {
                   ],
                 );
 
-                // Align(
-                //   alignment:
-                //       isUser ? Alignment.centerRight : Alignment.centerLeft,
-                //   child: Container(
-                //     margin: const EdgeInsets.symmetric(vertical: 8.0),
-                //     padding: const EdgeInsets.all(12.0),
-                //     decoration: BoxDecoration(
-                //       color: isUser ? Colors.blue[100] : Colors.grey[200],
-                //       borderRadius: BorderRadius.only(
-                //         topLeft: const Radius.circular(12.0),
-                //         topRight: const Radius.circular(12.0),
-                //         bottomLeft: isUser
-                //             ? const Radius.circular(12.0)
-                //             : const Radius.circular(0.0),
-                //         bottomRight: isUser
-                //             ? const Radius.circular(0.0)
-                //             : const Radius.circular(12.0),
-                //       ),
-                //     ),
-                //     child: Text(
-                //       message['message']!,
-                //       style: TextStyle(
-                //         fontSize: 16.0,
-                //         color: isUser ? Colors.black : Colors.black87,
-                //       ),
-                //     ),
-                //   ),
-                // );
               },
             ),
           ),

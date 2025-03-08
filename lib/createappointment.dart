@@ -7,7 +7,7 @@ import 'package:predictivehealthcare/api/loginapi.dart';
 class CreateAppointmentScreen extends StatefulWidget {
   final DateTime selectedDate;
   final doctorid;
-  const CreateAppointmentScreen({
+  const CreateAppointmentScreen( {
     super.key,
     required this.selectedDate,
     required this.doctorid,

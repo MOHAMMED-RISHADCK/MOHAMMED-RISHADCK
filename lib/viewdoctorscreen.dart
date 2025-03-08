@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:predictivehealthcare/api/viewpostapi.dart';
 import 'package:predictivehealthcare/api/viewslotapi.dart';
 import 'package:predictivehealthcare/doctordetailscreen.dart';
 
@@ -19,14 +18,13 @@ class _AvailableDoctorsScreenState extends State<AvailableDoctorsScreen> {
   @override
   void initState() {
     super.initState();
-    _departments = ['All']; // Start with 'All' as the default option
+    _departments = ['All']; // Default option
     _departments.addAll(widget.doctors
         .map<String>((doctor) => doctor['specialization'] as String)
         .toSet()
         .toList());
   }
 
-  // Filtered list
   List<Map<String, dynamic>> get _filteredDoctors {
     String search = _searchController.text.toLowerCase();
     return widget.doctors.where((doctor) {
@@ -41,34 +39,33 @@ class _AvailableDoctorsScreenState extends State<AvailableDoctorsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Available Doctors'),
+        title: const Text('Available Doctors',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.teal,
+        elevation: 5,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: TextField(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
               controller: _searchController,
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
-                labelText: 'Search ',
+                labelText: 'Search by Name',
                 prefixIcon: const Icon(Icons.search, color: Colors.teal),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: DropdownButtonFormField<String>(
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
               value: _selectedDepartment,
               items: _departments
-                  .map((department) => DropdownMenuItem(
-                        value: department,
-                        child: Text(department),
+                  .map((dept) => DropdownMenuItem(
+                        value: dept,
+                        child: Text(dept),
                       ))
                   .toList(),
               onChanged: (value) {
@@ -79,74 +76,74 @@ class _AvailableDoctorsScreenState extends State<AvailableDoctorsScreen> {
               decoration: InputDecoration(
                 labelText: 'Select Department',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: _filteredDoctors.isEmpty
-                ? Center(
-                    child: Text(
-                      'No doctors found',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: _filteredDoctors.length,
-                    itemBuilder: (context, index) {
-                      final doctor = _filteredDoctors[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 12),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.teal,
-                            child:
-                                const Icon(Icons.person, color: Colors.white),
-                          ),
-                          title: Text(
-                            doctor['Name']!,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(
-                              '${doctor['specialization']} • ${doctor['qualification']}'),
-                          trailing: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.star, color: Colors.amber, size: 18),
-                              Text(
-                                '${doctor['avg_rating'] ?? 0.0}',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.teal,
-                                  fontSize: 14,
+            const SizedBox(height: 16),
+            Expanded(
+              child: _filteredDoctors.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'No doctors found',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _filteredDoctors.length,
+                      itemBuilder: (context, index) {
+                        final doctor = _filteredDoctors[index];
+                        return Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          elevation: 4,
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(12),
+                            leading: const CircleAvatar(
+                              backgroundColor: Colors.teal,
+                              child: Icon(Icons.person, color: Colors.white),
+                            ),
+                            title: Text(
+                              doctor['Name']!,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            subtitle: Text(
+                                '${doctor['specialization']} • ${doctor['qualification']}'),
+                            trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.star, color: Colors.amber, size: 20),
+                                Text(
+                                  '${doctor['avg_rating'] ?? 0.0}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.teal,
+                                    fontSize: 14,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
+                            onTap: () async {
+                              List<Map<String, dynamic>> slotdata =
+                                  await getSlots();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DoctorDetailsScreen(
+                                    doctor: doctor,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          onTap: () async {
-                            List<Map<String, dynamic>> slotdata =
-                                await getSlots();
-                            // print("rrrrr$slotdata");
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DoctorDetailsScreen(
-                                    doctor: doctor, )
-                                    // slottt: slotdata),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,24 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:predictivehealthcare/api/loginapi.dart';
-import 'package:predictivehealthcare/registrationscreen.dart';
 import 'package:predictivehealthcare/forgotpasswordscreen.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Login Screen',
-      home: const LoginScreen(),
-    );
-  }
-}
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:predictivehealthcare/homepagescreen.dart';
+import 'package:predictivehealthcare/api/loginapi.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -31,89 +15,119 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _rememberMe = false;
-  bool _obscureText = true; // Boolean to control password visibility
+  bool _obscureText = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    if (isLoggedIn) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => DashboardScreen()),
+      );
+    }
+  }
+
+  Future<void> _handleLogin() async {
+    String username = _emailController.text;
+    String password = _passwordController.text;
+
+    if (username.isNotEmpty && password.isNotEmpty) {
+      bool loginSuccess = await loginapi(username, password, context);
+
+      if (loginSuccess) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('username', username);
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => DashboardScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid username or password')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter username and password')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEBF5FB), // Light medical blue background
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  blurRadius: 12,
-                  offset: Offset(0, 6),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.all(20),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.black, Colors.blueAccent],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  "LOGIN",
+                  "Predictive Healthcare",
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF003366), // Dark blue for high contrast
+                    color: Colors.white,
+                    letterSpacing: 1.5,
                   ),
                 ),
                 const SizedBox(height: 20),
                 TextField(
                   controller: _emailController,
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: "Email ID",
-                    prefixIcon:
-                        const Icon(Icons.email, color: Color(0xFF0073E6)),
+                    labelStyle: const TextStyle(color: Colors.white70),
                     filled: true,
-                    fillColor:
-                        const Color(0xFFE6F2FF), // Slightly darker light blue
+                    fillColor: Colors.white10,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Color(0xFF0073E6)),
                     ),
-                    labelStyle: const TextStyle(color: Color(0xFF003366)),
                   ),
-                  style: const TextStyle(color: Color(0xFF003366)),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 15),
                 TextField(
                   controller: _passwordController,
-                  obscureText: _obscureText, // Controlled by _obscureText
+                  obscureText: _obscureText,
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: "Password",
-                    prefixIcon:
-                        const Icon(Icons.lock, color: Color(0xFF0073E6)),
+                    labelStyle: const TextStyle(color: Colors.white70),
                     filled: true,
-                    fillColor: const Color(0xFFE6F2FF),
+                    fillColor: Colors.white10,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Color(0xFF0073E6)),
                     ),
-                    labelStyle: const TextStyle(color: Color(0xFF003366)),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscureText
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: Color(0xFF0073E6),
+                        _obscureText ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.white70,
                       ),
                       onPressed: () {
                         setState(() {
-                          _obscureText = !_obscureText; // Toggle password visibility
+                          _obscureText = !_obscureText;
                         });
                       },
                     ),
                   ),
-                  style: const TextStyle(color: Color(0xFF003366)),
                 ),
-                const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -126,80 +140,38 @@ class _LoginScreenState extends State<LoginScreen> {
                               _rememberMe = value!;
                             });
                           },
-                          checkColor: Colors.white,
-                          fillColor:
-                              MaterialStateProperty.all(Color(0xFF0073E6)),
                         ),
-                        const Text(
-                          "Remember me",
-                          style: TextStyle(color: Color(0xFF003366)),
-                        ),
+                        const Text("Remember me",
+                            style: TextStyle(color: Colors.white)),
                       ],
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ForgotPasswordScreen()));
-                        // Forgot Password Logic
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => ForgotPasswordScreen()));
+                        // Navigate to Forgot Password screen (to be implemented)
                       },
                       child: const Text(
                         "Forgot Password?",
-                        style: TextStyle(color: Color(0xFF0073E6)),
+                        style: TextStyle(color: Colors.blueAccent),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () {
-                    // Login Logic
-                    String username = _emailController.text;
-                    String password = _passwordController.text;
-
-                    if (username.isNotEmpty && password.isNotEmpty) {
-                      loginapi(username, password, context);
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) => DashboardScreen()));
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Invalid username or password')),
-                      );
-                    }
-                  },
+                  onPressed: _handleLogin,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFF0073E6), // High-contrast blue
+                    backgroundColor: Colors.blueAccent,
                     padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 32),
+                        vertical: 15, horizontal: 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    elevation: 5,
                   ),
                   child: const Text(
-                    "LOGIN",
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => RegistrationPage()),
-                    );
-                  },
-                  child: const Text(
-                    "REGISTER",
-                    style: TextStyle(
-                      color: Color(0xFF0073E6),
-                      decoration: TextDecoration.underline,
-                    ),
+                    "Login",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ),
               ],

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:predictivehealthcare/createappointment.dart';
 import 'package:predictivehealthcare/reviewandratescreen.dart';
-import 'package:predictivehealthcare/api/reviewapi.dart'; // Import API service
+import 'package:predictivehealthcare/api/reviewapi.dart';
+
 
 class DoctorDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> doctor;
@@ -16,6 +17,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
   List<Map<String, dynamic>> _reviews = [];
   bool _isLoading = true;
   double _averageRating = 0.0;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -39,6 +41,30 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
               _reviews.length;
         }
       });
+    }
+  }
+
+  void _pickDate() async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        _selectedDate = pickedDate;
+      });
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CreateAppointmentScreen(
+            doctorid: widget.doctor,
+            selectedDate: _selectedDate!,
+          ),
+        ),
+      );
     }
   }
 
@@ -109,14 +135,45 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _pickDate,
+              icon: const Icon(Icons.calendar_today),
+              label: const Text("Select Appointment Date"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueAccent,
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+              ),
+            ),
+            const SizedBox(height: 24),
+
             const Text(
               'Doctor Reviews & Ratings',
               style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
 
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReviewAndRatingScreen(
+                      doctor: widget.doctor,
+                      doctorid: widget.doctor["id"],
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.reviews),
+              label: const Text('Add Review'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueAccent,
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+              ),
+            ),
+            
             _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _reviews.isEmpty
@@ -141,39 +198,15 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    review['reviewcomment'] ?? "No comment", // Ensure correct key
+                                    review['reviewcomment'] ?? "No comment",
                                     style: const TextStyle(fontSize: 14.0),
                                   ),
-
                                 ],
                               ),
                             ),
                           );
                         }).toList(),
                       ),
-            
-            const SizedBox(height: 24),
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ReviewAndRatingScreen(
-                        doctor: widget.doctor,
-                        doctorid: widget.doctor["id"],
-                      ),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.reviews),
-                label: const Text('Add Review'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                ),
-              ),
-            ),
           ],
         ),
       ),
