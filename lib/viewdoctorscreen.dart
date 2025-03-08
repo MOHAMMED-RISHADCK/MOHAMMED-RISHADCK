@@ -119,7 +119,7 @@ class _AvailableDoctorsScreenState extends State<AvailableDoctorsScreen> {
                             children: [
                               Icon(Icons.star, color: Colors.amber, size: 18),
                               Text(
-                                '${doctor['rating'] ?? 0.0}',
+                                '${doctor['avg_rating'] ?? 0.0}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.teal,

@@ -65,7 +65,7 @@ class _ReviewAndRatingScreenState extends State<ReviewAndRatingScreen> {
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Thank you for reviewing Dr. ${widget.doctor['name']}!'),
+          content: Text('Thank you for reviewing Dr. ${widget.doctor['Name']}!'),
           backgroundColor: Colors.green,
         ),
       );
@@ -78,12 +78,13 @@ class _ReviewAndRatingScreenState extends State<ReviewAndRatingScreen> {
 
       // Delay navigation so user sees success message
       Future.delayed(const Duration(seconds: 2), () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DoctorDetailsScreen(doctor: widget.doctor),
-          ),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => DoctorDetailsScreen(doctor: widget.doctor),
+        //   ),
+        // );
+        Navigator.pop(context);
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -37,6 +37,13 @@ android {
             signingConfig = signingConfigs.debug
         }
     }
+    android.applicationVariants.all { variant ->
+    variant.outputs.all { output ->
+        def newApkName = "predictivehealth-${variant.buildType.name}.apk"
+        output.outputFileName = newApkName
+    }
+}
+
 }
 
 flutter {
